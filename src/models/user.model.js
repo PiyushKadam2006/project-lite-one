@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 
 
 const userSchema  = new mongoose.Schema({
@@ -25,10 +25,16 @@ const userSchema  = new mongoose.Schema({
 })
 
 
-userSchema.pre('save',async function(){
+userSchema.pre('save',async function(){ //this is a hook 
     if(this.isModified("password")){
         this.password= await bcrypt.hash(this.password,10)
     }
 })
 
-userScheam
+userSchema.methods.comparePassword = async function (candidatePassword){
+    return await bcrypt.compare(candidatePassword,this.password)
+}
+
+const userModel = mongoose.model("User",userSchema);
+
+export default userModel;
